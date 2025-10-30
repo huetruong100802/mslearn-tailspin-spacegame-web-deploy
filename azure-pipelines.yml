@@ -1,7 +1,7 @@
 trigger:
   branches:
     include:
-    - '*'     # build all branches
+    - main
 
 variables:
   buildConfiguration: 'Release'
