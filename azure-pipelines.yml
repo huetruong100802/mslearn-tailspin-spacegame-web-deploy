@@ -6,6 +6,15 @@ trigger:
 variables:
   buildConfiguration: 'Release'
   releaseBranchName: 'release'
+  agentName: 'Default'
+
+schedules:
+- cron: '0 3 * * *'
+  displayName: 'Deploy every day at 3 A.M.'
+  branches:
+    include:
+    - release
+  always: false 
 
 stages:
 - stage: 'Build'
@@ -14,7 +23,7 @@ stages:
   - job: 'Build'
     displayName: 'Build job'
     pool:
-      name: 'Default'
+      name: '$(agentName)'
 
     variables:
       wwwrootDir: 'Tailspin.SpaceGame.Web/wwwroot'
@@ -78,7 +87,7 @@ stages:
   jobs:
   - deployment: Deploy
     pool:
-      name: 'Default'
+      name: '$(agentName)'
     environment: dev
     variables:
     - group: Release
@@ -93,4 +102,30 @@ stages:
             inputs:
               azureSubscription: 'Resource Manager - Tailspin - Space Game'
               appName: '$(WebAppNameDev)'
+              appType: webApp
+              package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+
+- stage: 'Test'
+  displayName: 'Deploy to the test environment'
+  dependsOn: Dev
+  condition: eq(variables['Build.Reason'], 'Schedule')
+  jobs:
+  - deployment: Deploy
+    pool:
+      name: '$(agentName)'
+    environment: test
+    variables:
+    - group: 'Release'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: drop
+          - task: AzureWebApp@1
+            displayName: 'Azure App Service Deploy: website'
+            inputs:
+              azureSubscription: 'Resource Manager - Tailspin - Space Game'
+              appName: '$(WebAppNameTest)'
+              appType: webApp
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
