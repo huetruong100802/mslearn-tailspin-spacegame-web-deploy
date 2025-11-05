@@ -136,6 +136,10 @@ stages:
         arguments: '--no-build --configuration $(buildConfiguration)'
         publishTestResults: true
         projects: '$(System.DefaultWorkingDirectory)/**/*UITests.csproj'
+      env:
+        ChromeWebDriver: '$(WebDriverPath)'
+        EdgeWebDriver: '$(WebDriverPath)'
+        GeckoWebDriver: '$(WebDriverPath)'
 
 - stage: 'Staging'
   displayName: 'Deploy to the staging environment'
