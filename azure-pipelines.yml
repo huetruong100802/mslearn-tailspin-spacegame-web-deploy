@@ -140,6 +140,7 @@ stages:
         ChromeWebDriver: '$(WebDriverPath)'
         EdgeWebDriver: '$(WebDriverPath)'
         GeckoWebDriver: '$(WebDriverPath)'
+        SITE_URL: $(SITE_URL)
 
 - stage: 'Staging'
   displayName: 'Deploy to the staging environment'
